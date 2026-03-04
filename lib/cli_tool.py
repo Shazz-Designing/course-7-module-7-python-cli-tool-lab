@@ -1,48 +1,45 @@
-# cli_tool.py
-
 import argparse
-from models import Task, User
+from lib.models import User, Task
 
-# Global dictionary to store users and their tasks
 users = {}
 
-# TODO: Implement function to add a task for a user
-def add_task(args):
-    # - Check if the user exists, if not, create one
-    # - Create a new Task with the given title
-    # - Add the task to the user's task list
-    pass
 
-# TODO: Implement function to mark a task as complete
-def complete_task(args):
-    # - Look up the user by name
-    # - Look up the task by title
-    # - Mark the task as complete
-    # - Print appropriate error messages if not found
-    pass
+def add_task(username, task_title):
+    if username not in users:
+        users[username] = User(username)
 
-# CLI entry point
+    task = Task(task_title)
+    users[username].add_task(task)
+
+
+def complete_task(username, task_title):
+    if username in users:
+        users[username].complete_task(task_title)
+    else:
+        print("User not found.")
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Task Manager CLI")
-    subparsers = parser.add_subparsers()
+    parser = argparse.ArgumentParser(description="Task CLI Tool")
 
-    # Subparser for adding tasks
-    add_parser = subparsers.add_parser("add-task", help="Add a task for a user")
-    add_parser.add_argument("user")
-    add_parser.add_argument("title")
-    add_parser.set_defaults(func=add_task)
+    subparsers = parser.add_subparsers(dest="command")
 
-    # Subparser for completing tasks
-    complete_parser = subparsers.add_parser("complete-task", help="Complete a user's task")
-    complete_parser.add_argument("user")
-    complete_parser.add_argument("title")
-    complete_parser.set_defaults(func=complete_task)
+    add_parser = subparsers.add_parser("add-task")
+    add_parser.add_argument("username")
+    add_parser.add_argument("task")
+
+    complete_parser = subparsers.add_parser("complete-task")
+    complete_parser.add_argument("username")
+    complete_parser.add_argument("task")
 
     args = parser.parse_args()
-    if hasattr(args, "func"):
-        args.func(args)
-    else:
-        parser.print_help()
+
+    if args.command == "add-task":
+        add_task(args.username, args.task)
+
+    elif args.command == "complete-task":
+        complete_task(args.username, args.task)
+
 
 if __name__ == "__main__":
     main()
